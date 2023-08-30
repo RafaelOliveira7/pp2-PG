@@ -1,7 +1,6 @@
 document.addEventListener("click", () => {
     torusMaterial.wireframe = !torusMaterial.wireframe;
     d20material.wireframe = !d20material.wireframe;
-    voxusMaterial.wireframe = !voxusMaterial.wireframe;
     esferaMaterial.wireframe = !esferaMaterial.wireframe;
 });
 
@@ -42,13 +41,6 @@ const torus = new THREE.Mesh( torusGeomentry, torusMaterial );
 torus.scale.set(0.9,0.9,0.9);
 torus.position.set(0,2,0);
 
-const voxusGeometry = new THREE.BoxGeometry( 1, 1, 1 );
-const voxusMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-voxusMaterial.wireframe = true;
-const voxus = new THREE.Mesh( voxusGeometry, voxusMaterial );
-voxus.scale.set(0.9,0.9,0.9);
-voxus.position.set(5,0,0);
-
 const geoEsfera = new THREE.SphereGeometry(1, 32, 32);
 const esferaMaterial = new THREE.MeshBasicMaterial({color: 0x00ABFF });
 esferaMaterial.wireframe = true;
@@ -59,7 +51,7 @@ esfera.scale.set(0.9,0.9,0.9);
 camera.position.z = 5;
 camera.lookAt(0, 0, 0);
 
-scene.add( torus, d20, voxus, esfera );
+scene.add( torus, d20, esfera );
 
 const initialPosition = new THREE.Vector3(0, 0, -5);
 const bounceDirection = new THREE.Vector3(1, 1, 1).normalize();
@@ -86,9 +78,6 @@ function animate() {
     d20.rotation.y += 0.02;
     d20.scale.set(d20pulse%3, d20pulse%3, d20pulse%3);
     d20pulse++;
-
-    voxus.rotation.x += 0.01;
-    voxus.rotation.y += 0.02;
 
     esfera.rotation.x += 0.01;
     esfera.rotation.y += 0.02;
