@@ -1,6 +1,8 @@
 document.addEventListener("click", () => {
     torusMaterial.wireframe = !torusMaterial.wireframe;
     d20material.wireframe = !d20material.wireframe;
+    voxusMaterial.wireframe = !voxusMaterial.wireframe;
+    esferaMaterial.wireframe = !esferaMaterial.wireframe;
 });
 
 var d20pulse = 1;
@@ -40,10 +42,29 @@ const torus = new THREE.Mesh( torusGeomentry, torusMaterial );
 torus.scale.set(0.9,0.9,0.9);
 torus.position.set(0,2,0);
 
+const voxusGeometry = new THREE.BoxGeometry( 1, 1, 1 );
+const voxusMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+voxusMaterial.wireframe = true;
+const voxus = new THREE.Mesh( voxusGeometry, voxusMaterial );
+voxus.scale.set(0.9,0.9,0.9);
+voxus.position.set(5,0,0);
+
+const geoEsfera = new THREE.SphereGeometry(1, 32, 32);
+const esferaMaterial = new THREE.MeshBasicMaterial({color: 0x00ABFF });
+esferaMaterial.wireframe = true;
+const esfera = new THREE.Mesh(geoEsfera, esferaMaterial);
+esfera.scale.set(0.9,0.9,0.9);
+// esfera.position.set(-5, -4, 0);  
+
 camera.position.z = 5;
 camera.lookAt(0, 0, 0);
 
-scene.add( torus, d20 );
+scene.add( torus, d20, voxus, esfera );
+
+const initialPosition = new THREE.Vector3(0, 0, -5);
+const bounceDirection = new THREE.Vector3(1, 1, 1).normalize();
+const bounceSpeed = 0.05;
+
 
 function animate() {
     requestAnimationFrame( animate );
@@ -53,6 +74,24 @@ function animate() {
     d20.rotation.y += 0.02;
     d20.scale.set(d20pulse%3, d20pulse%3, d20pulse%3);
     d20pulse++;
+
+    voxus.rotation.x += 0.01;
+    voxus.rotation.y += 0.02;
+
+    esfera.rotation.x += 0.01;
+    esfera.rotation.y += 0.02;
+
+    esfera.position.add(bounceDirection.clone().multiplyScalar(bounceSpeed));
+
+    if (esfera.position.x > 10 || esfera.position.x < -10) {
+        bounceDirection.x *= -1;
+    }
+    if (esfera.position.y > 5 || esfera.position.y < -5) {
+        bounceDirection.y *= -1;
+    }
+    if (esfera.position.z > -1 || esfera.position.z < -10) {
+        bounceDirection.z *= -1;
+    }
 
     renderer.render( scene, activeCamera );
 }
