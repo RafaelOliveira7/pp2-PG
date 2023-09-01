@@ -40,6 +40,11 @@
    <img width="600" height="400" src="/assets/animation-cene.gif"/>
 </p>
 
+## Interações
+1. Para alterar a perspectiva da câmera, você pode apertar a tecla 1 e 2. Isso irá alternar as duas câmeras disponíveis.
+2. Você pode mudar o estilo "wireframe" para o com preenchimento clicando na tela.
+3. O projeto possui uma função que garante a responsividade, assim você consegue aumentar e diminuir o tamanho da tela sem perder a renderização da maneira correta em fullscreen.
+
 ## Como Usar
 
 Como utilizar esse projeto:
