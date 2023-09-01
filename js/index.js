@@ -6,14 +6,81 @@ document.addEventListener("click", () => {
 
 var d20pulse = 1;
 
+// GL
+const vShader = `
+varying vec2 v_uv;
+
+void main() {
+  v_uv = uv;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+
+}
+`
+const fShader = `
+varying vec2 v_uv;
+uniform vec2 u_mouse;
+uniform vec2 u_resolution;
+uniform vec3 u_color;
+uniform float u_time;
+
+void main() {
+  vec2 v = u_mouse / u_resolution;
+  vec2 uv = gl_FragCoord.xy / u_resolution;
+  float colorIndex = mod(u_time * 0.5, 3.3); // Alterna entre 0, 1 e 2
+  vec3 color;
+
+  if (colorIndex < 1.0) {
+    color = vec3(0.0, 0.0, 1.0); // Azul
+  } else if (colorIndex < 2.0) {
+    color = vec3(0.0, 1.0, 0.0); // Verde
+  } else {
+    color = vec3(1.0, 1.0, 0.0); // Amarelo
+  }
+  
+  gl_FragColor = vec4(color, 1.0);
+}
+`
+
+// shader uniforms
+const uniforms = {
+  u_mouse: { value: { x: window.innerWidth / 2, y: window.innerHeight / 2 } },
+  u_resolution: { value: { x: window.innerWidth, y: window.innerHeight } },
+  u_time: { value: 0.0 },
+  u_color: { value: new THREE.Color(0xFF0000) }
+}
+
+// scene
 const scene = new THREE.Scene();
+
+// set clock
+const clock = new THREE.Clock();
+
+
 const camera = new THREE.PerspectiveCamera( 100, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
+// camera
+let aspect = window.innerWidth / window.innerHeight;
 const topCamera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 topCamera.position.set(0, 10, 0);
 topCamera.lookAt(0, 0, 0);
 
 let activeCamera = camera;
+
+// renderer
+const renderer = new THREE.WebGLRenderer({
+  alpha: true,
+  antialias: true,
+});
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// geometry and material
+const geometry = new THREE.BoxGeometry(1,1,1);
+const material = new THREE.ShaderMaterial({
+  vertexShader: vShader,
+  fragmentShader: fShader,
+  uniforms
+});
 
 document.addEventListener("keydown", (event) => {
     if (event.key === "1") {
@@ -23,9 +90,9 @@ document.addEventListener("keydown", (event) => {
     }
 });
 
-const renderer = new THREE.WebGLRenderer();
-renderer.setSize( window.innerWidth, window.innerHeight );
-document.body.appendChild( renderer.domElement );
+// mesh
+const cube = new THREE.Mesh(geometry, material);
+cube.position.set(4,-1,0);
 
 const d20geometry = new THREE.IcosahedronGeometry(1,0);
 const d20material = new THREE.MeshBasicMaterial( { color: 0xf20303 } );
@@ -46,12 +113,11 @@ const esferaMaterial = new THREE.MeshBasicMaterial({color: 0x00ABFF });
 esferaMaterial.wireframe = true;
 const esfera = new THREE.Mesh(geoEsfera, esferaMaterial);
 esfera.scale.set(0.9,0.9,0.9);
-// esfera.position.set(-5, -4, 0);  
 
 camera.position.z = 5;
 camera.lookAt(0, 0, 0);
 
-scene.add( torus, d20, esfera );
+scene.add( torus, d20, esfera, cube );
 
 const initialPosition = new THREE.Vector3(0, 0, -5);
 const bounceDirection = new THREE.Vector3(1, 1, 1).normalize();
@@ -75,6 +141,10 @@ window.addEventListener( 'resize', onWindowResize );
 
 function animate() {
     requestAnimationFrame( animate );
+
+    cube.rotation.y += 0.01;
+    cube.rotation.x += 0.01;
+    uniforms.u_time.value = clock.getElapsedTime();
 
     torus.rotation.x += 0.02;
 
